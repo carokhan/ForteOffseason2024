@@ -99,6 +99,21 @@ public class Drive extends SubsystemBase {
                 },
                 null,
                 this));
+
+    AutoBuilder.configureHolonomic(
+      this::getPose,
+      this::setPose,
+      this::getVelocity,
+      this::runVelocity,
+      new HolonomicPathFollowerConfig(
+        new PIDConstants(DriveConstants.kPDriveReal, DriveConstants.kDDriveReal),
+        new PIDConstants(DriveConstants.kPTurnReal, DriveConstants.kDTurnReal),
+        DriveConstants.maxLinearVelocity,
+        DriveConstants.trackWidth,
+        new ReplanningConfig()
+      ),
+      () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red,
+      this);
   }
 
   public void periodic() {
