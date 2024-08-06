@@ -30,7 +30,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
-  private Command teleopCommand;
+  // private Command teleopCommand;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -140,7 +140,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void teleopInit() {
-    teleopCommand.schedule();
+    // teleopCommand.schedule();
   }
 
   /** This function is called periodically during operator control. */
@@ -153,7 +153,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void teleopExit() {
-    teleopCommand.cancel();
+    // teleopCommand.cancel();
   }
 
   /** This function is called once when test mode is enabled. */
