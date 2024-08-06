@@ -69,8 +69,8 @@ public final class Constants {
       public static final int backLeftEncoder = 1;
       public static final int backRightEncoder = 0;
 
-      public static final double frontLeftOffset = 0.0;
-      public static final double frontRightOffset = -0.49733975529670715;
+      public static final double frontLeftOffset = -4.312;
+      public static final double frontRightOffset = -2.69733975529670715;
       public static final double backLeftOffset = -2.035203218460083+Math.PI;
       public static final double backRightOffset = -3.0376768112182617+Math.PI;
 
