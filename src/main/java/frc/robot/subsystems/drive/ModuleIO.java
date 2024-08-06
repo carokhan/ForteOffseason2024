@@ -17,6 +17,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import frc.robot.subsystems.drive.ModuleIOInputsAutoLogged;
+
 public interface ModuleIO {
   @AutoLog
   public static class ModuleIOInputs {
