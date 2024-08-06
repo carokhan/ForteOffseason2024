@@ -1,72 +1,27 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot;
-
-import java.util.List;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.RobotMap;
-import frc.robot.subsystems.climber.Climb;
-import frc.robot.subsystems.climber.ClimbIOReplay;
-import frc.robot.subsystems.climber.ClimbIOSim;
-import frc.robot.subsystems.climber.ClimbIOSparkMax;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIOPigeon2Phoenix6;
-import frc.robot.subsystems.drive.GyroIOReplay;
-import frc.robot.subsystems.drive.ModuleIOReal;
-import frc.robot.subsystems.drive.ModuleIOReplay;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.feeder.BeambreakIOReal;
-import frc.robot.subsystems.feeder.BeambreakIOReplay;
-import frc.robot.subsystems.feeder.BeambreakIOSim;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.FeederIOReplay;
-import frc.robot.subsystems.feeder.FeederIOSim;
-import frc.robot.subsystems.feeder.FeederIOSparkMax;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIOReplay;
-import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOSparkMax;
-import frc.robot.subsystems.pivot.Pivot;
-import frc.robot.subsystems.pivot.PivotIOReplay;
-import frc.robot.subsystems.pivot.PivotIOSim;
-import frc.robot.subsystems.pivot.PivotIOSparkMax;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterIOReplay;
-import frc.robot.subsystems.shooter.ShooterIOSim;
-import frc.robot.subsystems.shooter.ShooterIOSparkMax;
+import frc.robot.subsystems.climber.*;
+import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.*;
+import frc.robot.subsystems.intake.*;
+import frc.robot.subsystems.pivot.*;
+import frc.robot.subsystems.shooter.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -78,13 +33,7 @@ import frc.robot.subsystems.shooter.ShooterIOSparkMax;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-//   private Driver driver   = Driver.ARNAV_DRIVE;
-//   private Driver operator = Driver.ZACH_OPERATOR;
-
   // Subsystems
-  // private final SwerveSubsystem m_drive = new SwerveSubsystem(new
-  // File(Filesystem.getDeployDirectory(),
-  // "swerve/swerve"));;
   private final Drive m_drive;
   private final Climb m_climber;
   private final Intake m_intake;
@@ -101,7 +50,7 @@ public class RobotContainer {
   // private final SwerveSubsystem drivebase
 
   /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
+   * The container for the robot. Contains subsystems, devices, and commands.
    */
   public RobotContainer() {
     switch (Constants.currentMode) {
@@ -256,6 +205,9 @@ public class RobotContainer {
         m_climber.setDutyCycle(0)
     );
 
+    // start -> reset gyro
+    m_driver.start().onTrue(new InstantCommand(m_drive::resetGyro));
+
     // Operator Controller
 
     // D-Pad Up for intake down, rollers forward, until note in feeder beambreak
@@ -279,8 +231,8 @@ public class RobotContainer {
     // Right trigger for run intake forward
     m_operator.rightTrigger(0.1).onTrue(
         Commands.parallel(
-            m_intake.setRollerRPM(() -> 3000),
-            m_feeder.setRPM(() -> 3000)).until(() -> m_feeder.feederBeambreakObstructed()))
+            m_intake.setRollerRPM(() -> 5000),
+            m_feeder.setRPM(() -> 5000)).until(() -> m_feeder.feederBeambreakObstructed()))
         .onFalse(
             Commands.parallel(
                 m_intake.setRollerRPM(() -> 0),
@@ -317,9 +269,10 @@ public class RobotContainer {
     //             .until(() -> (m_feeder.feederBeambreakObstructed() && !m_feeder.shooterBeambreakObstructed()))));
 
 
+    // Run shooter
     m_operator.leftTrigger(0.1).onTrue(
         m_shooter.setRPM(() -> 5800, 0.3)
-    ).onFalse(m_shooter.setRPM(() -> 0, 1));
+    ).onFalse(m_shooter.stopShooter());
 
   }
 
@@ -327,7 +280,7 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "ShootNote",
         Commands.parallel(
-            m_shooter.setRPM(() -> 5800, 0.3),
+            m_shooter.setRPM(() -> 2000, 1),
             Commands.sequence(
                 new WaitCommand(1),
                 m_feeder.setRPM(() -> 2000)
@@ -352,9 +305,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return null;
+    return new PathPlannerAuto("Top Taxi Auto");
   }
-
+// 
   private static double teleopAxisAdjustment(double x) {
     return MathUtil.applyDeadband(Math.abs(Math.pow(x, 2)) * Math.signum(x), 0.02);
   }
