@@ -13,7 +13,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
@@ -43,7 +52,7 @@ public final class Constants {
 
   public static final boolean isTuning = false;
 
-  public static class RobotMap {
+public static class RobotMap {
     public static class Drive {
       public static final int frontLeftDrive = 1;
       public static final int frontLeftTurn = 2;
@@ -305,5 +314,33 @@ public final class Constants {
 
   public static class SimConstants {
     public static final double loopTime = 0.02;
+  }
+
+  public static class VisionConstants {
+    public static final Transform3d rightCamToRobot =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(12.161481),
+                -Units.inchesToMeters(12.050199),
+                Units.inchesToMeters(9.756915)),
+            new Rotation3d(
+                Units.degreesToRadians(0), -Units.degreesToRadians(25), -Units.degreesToRadians(35)));
+
+    public static final Transform3d leftCamToRobot =
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(12.161481),
+                Units.inchesToMeters(12.050199),
+                Units.inchesToMeters(9.756915)),
+            new Rotation3d(
+                Units.degreesToRadians(0),
+                -Units.degreesToRadians(25),
+                Units.degreesToRadians(35)));
+
+    public static final Matrix<N3, N1> singleTagStdDev =
+        VecBuilder.fill(0.8, 0.8, Double.MAX_VALUE);
+    public static final Matrix<N3, N1> multiTagStdDev = VecBuilder.fill(0.5, 0.5, Double.MAX_VALUE);
+    public static final AprilTagFieldLayout aprilTagFieldLayout =
+        AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   }
 }
